@@ -24,7 +24,7 @@ namespace Data.Repositories
                                                                             && t.Column == newTicket.Column
                                                                             && !t.Cancelled);
 
-            if (existingTicket != null)
+            if (existingTicket == null)
             {
                 _airlineDbContext.Tickets.Add(newTicket);
                 _airlineDbContext.SaveChanges();
@@ -48,5 +48,7 @@ namespace Data.Repositories
         {
             return _airlineDbContext.Tickets;
         }
+
+
     }
 }

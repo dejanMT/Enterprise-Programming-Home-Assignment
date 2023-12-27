@@ -26,5 +26,21 @@ namespace Data.Repositories
         public Flight? GetFlight(Guid id) {
             return GetFlights().SingleOrDefault(x => x.Id == id);
         }
+
+
+        public bool FlightAvailablity(Guid Id)
+        {
+            var flight = this.GetFlight(Id);
+
+            if (flight == null)
+            {
+                throw new InvalidOperationException("Flight not found.");
+            }
+
+            int totalSeats = flight.Rows * flight.Columns;
+            int bookedSeats = _airlineDbContext.Tickets.Count(t => t.FlightIdFK == Id && !t.Cancelled);
+
+            return bookedSeats >= totalSeats;
+        }
     }
 }

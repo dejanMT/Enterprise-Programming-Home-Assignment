@@ -1,4 +1,5 @@
 using Data.DataContext;
+using Data.Repositories;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -13,6 +14,11 @@ builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
     .AddEntityFrameworkStores<AirlineDbContext>();
 builder.Services.AddControllersWithViews();
+
+
+builder.Services.AddScoped(typeof(FlightDbRepository));
+builder.Services.AddScoped(typeof(TicketDBRepository));
+
 
 var app = builder.Build();
 
