@@ -8,15 +8,15 @@ using System.Threading.Tasks;
 
 namespace Domain.Models
 {
-    public  class Ticket
+    public class Ticket
     {
         [Key]
-        public int Id { get; set; }
+        public Guid Id { get; set; }
         public int Row { get; set; }
         public int Column { get; set; }
 
         [ForeignKey("Flight")]
-        public int FlightIdFK { get; set; }
+        public Guid FlightIdFK { get; set; }
         public virtual Flight Flight { get; set; }
 
         public string Passport { get; set; }
