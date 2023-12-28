@@ -49,6 +49,11 @@ namespace Data.Repositories
             return _airlineDbContext.Tickets;
         }
 
+        //public IQueryable<Ticket> GetUserTickets(string Id)
+        //{
+        //    return _airlineDbContext.Tickets.Where(t => t.Id == Id);
+        //}
+
 
     }
 }

@@ -1,5 +1,7 @@
-﻿using Data.Repositories;
+﻿using Data.DataContext;
+using Data.Repositories;
 using Domain.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Presentation.Models.ViewModels;
 
@@ -9,11 +11,13 @@ namespace Presentation.Controllers
     {
         private FlightDbRepository _flightDbRepository;
         private TicketDBRepository _ticketDBRepository;
+        private AirlineDbContext _airlineDbContext;
 
-        public TicketsController(FlightDbRepository flightDbRepository, TicketDBRepository ticketDBRepository) 
+        public TicketsController(FlightDbRepository flightDbRepository, TicketDBRepository ticketDBRepository, AirlineDbContext airlineDbContext) 
         {
             _flightDbRepository = flightDbRepository; 
             _ticketDBRepository = ticketDBRepository;
+            _airlineDbContext = airlineDbContext;
         }
 
         public IActionResult Index()
@@ -65,7 +69,6 @@ namespace Presentation.Controllers
                 _ticketDBRepository.Book(
                     new Ticket()
                     {
-                        Id = t.Id,
                         Row = t.Row,
                         Column = t.Column,
                         FlightIdFK = flight.Id,
@@ -84,6 +87,27 @@ namespace Presentation.Controllers
                 return View(t);
             }
         }
+
+
+        [HttpGet]
+        [Authorize]
+        public IActionResult TicketHistory(string passport)
+        {
+            var list = _ticketDBRepository.GetTickets().Where(t => t.Passport == passport);
+
+            var output = from t in list
+                         join f in _airlineDbContext.Flights on t.FlightIdFK equals f.Id
+                         select new ListTicketsHistoryViewModel()
+                         {
+                             Row = t.Row,
+                             Column = t.Column,
+                             Flight = f.CountryFrom + " to " + f.CountryTo,
+                             PricePaid = t.PricePaid
+                         };
+
+            return View(output.ToList());
+        }
+
 
 
     }
