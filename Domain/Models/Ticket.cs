@@ -20,6 +20,7 @@ namespace Domain.Models
         public virtual Flight Flight { get; set; }
 
         public string Passport { get; set; }
+        public string? PassportImg { get; set; }
         public decimal PricePaid { get; set; }
         public bool Cancelled { get; set; }
     }

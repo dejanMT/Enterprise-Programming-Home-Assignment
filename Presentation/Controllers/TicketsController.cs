@@ -3,6 +3,7 @@ using Data.Repositories;
 using Domain.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Hosting;
 using Presentation.Models.ViewModels;
 
 namespace Presentation.Controllers
@@ -50,7 +51,7 @@ namespace Presentation.Controllers
         }
 
         [HttpPost]
-        public IActionResult Book(BookFlightViewModel t)
+        public IActionResult Book(BookFlightViewModel t, [FromServices] IWebHostEnvironment host)
         {
             try
             {
@@ -64,6 +65,19 @@ namespace Presentation.Controllers
                 if (flight == null || _flightDbRepository.FlightAvailablity(flight.Id) || flight.DepartureDate <= DateTime.Now)
                 {
                     return View(t);
+                }
+
+                string relativePath = "";
+                if (t.PassportImgFile != null)
+                {
+                    string newFilename = Guid.NewGuid().ToString()+ Path.GetExtension(t.PassportImgFile.FileName);
+                    relativePath = "/images/" + newFilename;
+                    string absolutePath = host.WebRootPath + "\\images\\" + newFilename;
+                    using (FileStream fs = new FileStream(absolutePath, FileMode.CreateNew))
+                    {
+                        t.PassportImgFile.CopyTo(fs);
+                        fs.Flush();
+                    }
                 }
 
                 _ticketDBRepository.Book(

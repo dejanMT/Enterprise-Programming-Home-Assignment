@@ -14,6 +14,8 @@ namespace Presentation.Models.ViewModels
         [Required(ErrorMessage = "Passport is empty")]
         public string Passport { get; set; }
         public decimal PricePaid { get; set; }
-       // public Flight Flight { get; internal set; }
+        // public Flight Flight { get; internal set; }
+
+        public IFormFile PassportImgFile { get; set; }
     }
 }
