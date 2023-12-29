@@ -1,0 +1,42 @@
+﻿@model IEnumerable<Presentation.Models.ViewModels.ListTicketsViewModel>
+
+@{
+    ViewData["Title"] = "FlightTicket";
+}
+
+<h1>FlightTicket</h1>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Passport)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Row)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Column)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.Passport)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Row)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Column)
+            </td>
+            <td>
+                    @Html.ActionLink("View more info.", "TicketDetails", new { id = item.Id })
+            </td>
+        </tr>
+}
+    </tbody>
+</table>

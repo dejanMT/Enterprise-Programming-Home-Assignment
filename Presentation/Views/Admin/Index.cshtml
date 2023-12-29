@@ -1,0 +1,85 @@
+﻿@model IEnumerable<Presentation.Models.ViewModels.AdminListFlightsViewModel>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1>Index</h1>
+
+<p>
+    <a asp-action="Create">Create New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                Flight
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Rows)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Columns)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.DepartureDate)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.ArrivalDate)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.WholesalePrice)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.CommissionRate)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.RetailPrice)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.IsFullyBooked)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                    @Html.DisplayFor(modelItem => item.CountryFrom) to @Html.DisplayFor(modelItem => item.CountryTo)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Rows)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Columns)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.DepartureDate)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.ArrivalDate)
+            </td>
+            <td>
+                 € @Html.DisplayFor(modelItem => item.WholesalePrice)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.CommissionRate)%
+            </td>
+            <td>
+                € @Html.DisplayFor(modelItem => item.RetailPrice)
+            </td>
+            <td>
+                @* @Html.DisplayFor(modelItem => item.IsFullyBooked) *@
+                @(item.IsFullyBooked ? "Yes" : "No")
+            </td>
+            <td>
+                    @Html.ActionLink("View Tickets", "FlightTicket", new { id=item.Id })
+               @*  @Html.ActionLink("Edit", "Edit", new { /* id=item.PrimaryKey */ }) |
+                @Html.ActionLink("Details", "Details", new { /* id=item.PrimaryKey */ }) |
+                @Html.ActionLink("Delete", "Delete", new { /* id=item.PrimaryKey */ }) *@
+            </td>
+        </tr>
+}
+    </tbody>
+</table>

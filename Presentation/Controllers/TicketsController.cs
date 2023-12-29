@@ -88,15 +88,16 @@ namespace Presentation.Controllers
                         FlightIdFK = flight.Id,
                         Passport = t.Passport,
                         PricePaid = flight.WholesalePrice * (1 + (decimal)flight.CommissionRate / 100),
-                        Cancelled = false
+                        Cancelled = false,
+                        PassportImg = relativePath
                     }
                 );
                 TempData["message"] = "Ticket boked successfully!";
 
-                return View(t);
+                //return View(t);
+                return RedirectToAction("Index", "Tickets");
             } catch (Exception ex)
             {
-                
                 TempData["error"] = "Ticket not booked! Check your inputs!";
                 return View(t);
             }
@@ -111,12 +112,13 @@ namespace Presentation.Controllers
 
             var output = from t in list
                          join f in _airlineDbContext.Flights on t.FlightIdFK equals f.Id
-                         select new ListTicketsHistoryViewModel()
+                         select new ListTicketsViewModel()
                          {
                              Row = t.Row,
                              Column = t.Column,
                              Flight = f.CountryFrom + " to " + f.CountryTo,
-                             PricePaid = t.PricePaid
+                             Passport =t.Passport,
+                             PricePaid = t.PricePaid 
                          };
 
             return View(output.ToList());
