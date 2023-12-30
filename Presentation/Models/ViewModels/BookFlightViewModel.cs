@@ -14,8 +14,16 @@ namespace Presentation.Models.ViewModels
         [Required(ErrorMessage = "Passport is empty")]
         public string Passport { get; set; }
         public decimal PricePaid { get; set; }
-        // public Flight Flight { get; internal set; }
 
         public IFormFile PassportImgFile { get; set; }
+        public string SelectedSeat {  get; set; }
+
+        public List<(int Row, int Column)> TakenSeats { get; set; } = new List<(int Row, int Column)>();
+
+        public bool IsSeatTaken(int row, int column)
+        {
+            return TakenSeats.Any(seat => seat.Row == row && seat.Column == column);
+        }
+
     }
 }

@@ -1,5 +1,6 @@
 using Data.DataContext;
 using Data.Repositories;
+using Domain.Interfaces;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -15,6 +16,9 @@ builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.Requ
      .AddRoles<IdentityRole>()
     .AddEntityFrameworkStores<AirlineDbContext>();
 builder.Services.AddControllersWithViews();
+
+string absolutePath = builder.Environment.ContentRootPath + "Data\\tickets.json";
+builder.Services.AddScoped<ITicketRepository, TicketFileRepository>(x => new TicketFileRepository(absolutePath));
 
 
 builder.Services.AddScoped(typeof(FlightDbRepository));

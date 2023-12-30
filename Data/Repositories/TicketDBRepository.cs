@@ -1,4 +1,5 @@
 ﻿using Data.DataContext;
+using Domain.Interfaces;
 using Domain.Models;
 using System;
 using System.Collections.Generic;
@@ -8,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Data.Repositories
 {
-    public class TicketDBRepository
+    public class TicketDBRepository : ITicketRepository
     {
         private AirlineDbContext _airlineDbContext;
 
@@ -31,7 +32,7 @@ namespace Data.Repositories
             }
         }
 
-        public void Cancle(Ticket ticket)
+        public void Cancel(Ticket ticket)
         {
             //checking that teh ticket exists and that it was not already cancalled
             var existingTicket = _airlineDbContext.Tickets.FirstOrDefault(t => t.Id == ticket.Id);

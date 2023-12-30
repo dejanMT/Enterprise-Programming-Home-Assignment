@@ -64,7 +64,8 @@ namespace Presentation.Controllers
                                  Id = t.Id,
                                  Passport = t.Passport,
                                  Row = t.Row,
-                                 Column = t.Column
+                                 Column = t.Column,
+                                 Cancelled = t.Cancelled
                              };
 
                 return View(output.ToList());
@@ -86,7 +87,8 @@ namespace Presentation.Controllers
                              Row = t.Row,
                              Column = t.Column,
                              PricePaid = t.PricePaid,
-                             PassportImg = t.PassportImg
+                             PassportImg = t.PassportImg,
+                             Cancelled = t.Cancelled
 
                          }).FirstOrDefault();
 

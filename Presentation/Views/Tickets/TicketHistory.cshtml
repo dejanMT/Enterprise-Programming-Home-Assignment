@@ -51,7 +51,9 @@
                 €@Html.DisplayFor(modelItem => item.PricePaid)
             </td>
             <td>
-@*                 @Html.ActionLink("Edit", "Edit", new { /* id=item.PrimaryKey */ }) |
+                <a href="\Tickets\Cancle?id=@item.Id" onclick='return window.confirm("Are you sure you want to cancle?")'>Cancle</a>
+
+                @*@Html.ActionLink("Edit", "Edit", new { /* id=item.PrimaryKey */ }) |
                 @Html.ActionLink("Details", "Details", new { /* id=item.PrimaryKey */ }) |
                 @Html.ActionLink("Delete", "Delete", new { /* id=item.PrimaryKey */ }) *@
             </td>

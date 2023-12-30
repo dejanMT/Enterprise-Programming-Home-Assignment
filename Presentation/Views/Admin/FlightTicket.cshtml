@@ -18,6 +18,9 @@
             <th>
                 @Html.DisplayNameFor(model => model.Column)
             </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Cancelled)
+            </th>
             <th></th>
         </tr>
     </thead>
@@ -34,7 +37,10 @@
                 @Html.DisplayFor(modelItem => item.Column)
             </td>
             <td>
-                    @Html.ActionLink("View more info.", "TicketDetails", new { id = item.Id })
+                @(item.Cancelled ? "Yes" : "No")
+            </td>
+            <td>
+                @Html.ActionLink("View more info.", "TicketDetails", new { id = item.Id })
             </td>
         </tr>
 }

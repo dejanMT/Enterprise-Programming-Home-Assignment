@@ -17,5 +17,6 @@ namespace Presentation.Models.ViewModels
         public string CountryFrom { get; set; }
         public string CountryTo { get; set; }
         public string PassportImg { get; set; }
+        public bool Cancelled { get; set; }
     }
 }

@@ -35,7 +35,7 @@ namespace Presentation.Controllers
                              ArrivalDate = f.ArrivalDate,
                              CountryFrom = f.CountryFrom,
                              CountryTo = f.CountryTo,
-                             RetailPrice = f.WholesalePrice * (1 + (decimal)f.CommissionRate / 100), // Calculating the price
+                             RetailPrice = f.WholesalePrice * (f.WholesalePrice + (decimal)f.CommissionRate), // Calculating the price
                              IsFullyBooked = _flightDbRepository.FlightAvailablity(f.Id) //Checking if the flight is fully booked
                          };
 
@@ -45,8 +45,18 @@ namespace Presentation.Controllers
         [HttpGet]
         public IActionResult Book(Guid Id)
         {
-            BookFlightViewModel viewModel = new BookFlightViewModel{};
-            
+            var flight = _flightDbRepository.GetFlight(Id);
+            var tickets = _airlineDbContext.Tickets.Where(t => t.FlightIdFK == Id && !t.Cancelled).ToList();
+
+            var viewModel = new BookFlightViewModel
+            {
+                Row = flight.Rows, 
+                Column = flight.Columns,
+                PricePaid = flight.WholesalePrice * (flight.WholesalePrice + (decimal)flight.CommissionRate),
+                TakenSeats = tickets.Select(t => (t.Row, t.Column)).ToList()
+
+            };
+
             return View(viewModel);
         }
 
@@ -67,6 +77,7 @@ namespace Presentation.Controllers
                     return View(t);
                 }
 
+
                 string relativePath = "";
                 if (t.PassportImgFile != null)
                 {
@@ -80,14 +91,19 @@ namespace Presentation.Controllers
                     }
                 }
 
+                //Seperate the string to rows and columns
+                string[] seatRowAndColumn = (t.SelectedSeat).Split(',');
+                int row = int.Parse(seatRowAndColumn[0]);
+                int column = int.Parse(seatRowAndColumn[1]);
+
                 _ticketDBRepository.Book(
                     new Ticket()
                     {
-                        Row = t.Row,
-                        Column = t.Column,
+                        Row = row,
+                        Column = column,
                         FlightIdFK = flight.Id,
                         Passport = t.Passport,
-                        PricePaid = flight.WholesalePrice * (1 + (decimal)flight.CommissionRate / 100),
+                        PricePaid = flight.WholesalePrice * (flight.WholesalePrice + (decimal)flight.CommissionRate),
                         Cancelled = false,
                         PassportImg = relativePath
                     }
@@ -108,12 +124,13 @@ namespace Presentation.Controllers
         [Authorize]
         public IActionResult TicketHistory(string passport)
         {
-            var list = _ticketDBRepository.GetTickets().Where(t => t.Passport == passport);
+            var list = _ticketDBRepository.GetTickets().Where(t => t.Passport == passport && !t.Cancelled);
 
             var output = from t in list
                          join f in _airlineDbContext.Flights on t.FlightIdFK equals f.Id
                          select new ListTicketsViewModel()
                          {
+                             Id = t.Id,
                              Row = t.Row,
                              Column = t.Column,
                              Flight = f.CountryFrom + " to " + f.CountryTo,
@@ -124,6 +141,20 @@ namespace Presentation.Controllers
             return View(output.ToList());
         }
 
+        public IActionResult Cancle(Guid id)
+        {
+            var ticket = (_ticketDBRepository.GetTickets().Where(t=> t.Id == id)).FirstOrDefault();
+            if (ticket == null)
+            {
+                TempData["error"] = "No ticket to delete!";
+            } else
+            {
+                _ticketDBRepository.Cancel(ticket);
+                TempData["message"] = "Your flight from " + ticket.Flight + " has been canceled!";
+            }
+
+            return RedirectToAction("Index");
+        }
 
 
     }
