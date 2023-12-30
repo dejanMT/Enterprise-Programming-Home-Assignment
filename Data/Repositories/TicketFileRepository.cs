@@ -80,7 +80,14 @@ namespace Data.Repositories
             }
         }
 
+        public bool IsSeatAvailable(int row, int column, Guid id)
+        {
+            var matchingTickets = GetTickets().Where(ticket => ticket.FlightIdFK == id
+                                                         && !ticket.Cancelled
+                                                         && ticket.Row == row
+                                                         && ticket.Column == column);
 
-
+            return !matchingTickets.Any();
+        }
     }
 }
