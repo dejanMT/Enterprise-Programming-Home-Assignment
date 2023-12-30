@@ -12,5 +12,6 @@ namespace Domain.Interfaces
         IQueryable<Ticket> GetTickets();
         void Book(Ticket ticket);
         void Cancel(Ticket ticket);
+        bool IsSeatAvailable(int row, int column, Guid id);
     }
 }

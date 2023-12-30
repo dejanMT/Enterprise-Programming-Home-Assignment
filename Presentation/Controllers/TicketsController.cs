@@ -1,5 +1,6 @@
 ﻿using Data.DataContext;
 using Data.Repositories;
+using Domain.Interfaces;
 using Domain.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -12,13 +13,13 @@ namespace Presentation.Controllers
     public class TicketsController : Controller
     {
         private FlightDbRepository _flightDbRepository;
-        private TicketDBRepository _ticketDBRepository;
+        private ITicketRepository _ticketDBRepository;
         private AirlineDbContext _airlineDbContext;
 
         private readonly UserManager<CustomUser> _userManager;
 
         //constructor injection 
-        public TicketsController(FlightDbRepository flightDbRepository, TicketDBRepository ticketDBRepository, AirlineDbContext airlineDbContext, UserManager<CustomUser> userManager) 
+        public TicketsController(FlightDbRepository flightDbRepository, ITicketRepository ticketDBRepository, AirlineDbContext airlineDbContext, UserManager<CustomUser> userManager) 
         {
             _flightDbRepository = flightDbRepository; 
             _ticketDBRepository = ticketDBRepository;
@@ -30,6 +31,12 @@ namespace Presentation.Controllers
         {
             var currentDate = DateTime.Now;
             IQueryable<Flight> list = _flightDbRepository.GetFlights();
+
+            if (list == null)
+            {
+                TempData["error"] = "No Flights found!";
+                return RedirectToAction("Index", "Tickets");
+            }
 
             var output = from f in list
                          where f.DepartureDate > currentDate
@@ -189,6 +196,19 @@ namespace Presentation.Controllers
             }
 
             return RedirectToAction("Index");
+        }
+
+        public IActionResult checkIfAvailable(int row, int column, Guid id)
+        {
+            bool available = _ticketDBRepository.IsSeatAvailable(row, column, id);
+            if (available)
+            {
+                return Json(available);
+            } else
+            {
+                return Json("This seat is take!");
+            }
+            
         }
 
 

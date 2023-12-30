@@ -1,6 +1,7 @@
 ﻿using Data.DataContext;
 using Domain.Interfaces;
 using Domain.Models;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -50,6 +51,16 @@ namespace Data.Repositories
             return _airlineDbContext.Tickets;
         }
 
+        public bool IsSeatAvailable(int row, int column, Guid Id)
+        {
+            var ticketExists = _airlineDbContext.Tickets.Any(t =>
+                t.FlightIdFK == Id &&
+                t.Row == row &&
+                t.Column == column &&
+                !t.Cancelled);
+
+            return !ticketExists;
+        }
 
 
     }

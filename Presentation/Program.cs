@@ -21,7 +21,6 @@ builder.Services.AddControllersWithViews();
 string absolutePath = builder.Environment.ContentRootPath + "Data\\tickets.json";
 builder.Services.AddScoped<ITicketRepository, TicketFileRepository>(x => new TicketFileRepository(absolutePath));
 
-
 builder.Services.AddScoped(typeof(FlightDbRepository));
 builder.Services.AddScoped(typeof(TicketDBRepository));
 
