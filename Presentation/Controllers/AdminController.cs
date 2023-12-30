@@ -4,6 +4,7 @@ using Domain.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Presentation.Models.ViewModels;
+using System.Collections.Generic;
 
 namespace Presentation.Controllers
 {
@@ -77,7 +78,13 @@ namespace Presentation.Controllers
         {
             var ticket = _ticketDBRepository.GetTickets().Where(t => t.Id == id);
 
-            var output = (from t in ticket
+            if (ticket == null)
+            {
+                TempData["error"] = "Ticket not found!";
+                return View();
+            }
+
+                var output = (from t in ticket
                          join f in _airlineDbContext.Flights on t.FlightIdFK equals f.Id
                          select new ListTicketsViewModel()
                          {

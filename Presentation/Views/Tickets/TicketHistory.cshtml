@@ -4,11 +4,8 @@
     ViewData["Title"] = "TicketHistory";
 }
 
-<h1>TicketHistory</h1>
+<h1>Ticket History</h1>
 
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
 <table class="table">
     <thead>
         <tr>
@@ -27,6 +24,9 @@
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.PricePaid)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Cancelled)
             </th>
             <th></th>
         </tr>
@@ -51,7 +51,14 @@
                 €@Html.DisplayFor(modelItem => item.PricePaid)
             </td>
             <td>
-                <a href="\Tickets\Cancle?id=@item.Id" onclick='return window.confirm("Are you sure you want to cancle?")'>Cancle</a>
+                @(item.Cancelled ? "Yes" : "No")
+            </td>
+            <td>
+                    @if (item.Cancelled)
+                    {
+                        <a href="\Tickets\Cancel?id=@item.Id" onclick='return window.confirm("Are you sure you want to cancel?")'>Cancel</a>
+
+                    }
 
                 @*@Html.ActionLink("Edit", "Edit", new { /* id=item.PrimaryKey */ }) |
                 @Html.ActionLink("Details", "Details", new { /* id=item.PrimaryKey */ }) |

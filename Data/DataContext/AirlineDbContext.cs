@@ -10,7 +10,7 @@ using System.Xml.Linq;
 
 namespace Data.DataContext
 {
-    public class AirlineDbContext  : IdentityDbContext
+    public class AirlineDbContext  : IdentityDbContext<CustomUser>
     { 
 
         public AirlineDbContext(DbContextOptions<AirlineDbContext> options) : base(options)

@@ -2,6 +2,7 @@
 using Data.Repositories;
 using Domain.Models;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Hosting;
 using Presentation.Models.ViewModels;
@@ -14,11 +15,15 @@ namespace Presentation.Controllers
         private TicketDBRepository _ticketDBRepository;
         private AirlineDbContext _airlineDbContext;
 
-        public TicketsController(FlightDbRepository flightDbRepository, TicketDBRepository ticketDBRepository, AirlineDbContext airlineDbContext) 
+        private readonly UserManager<CustomUser> _userManager;
+
+        //constructor injection 
+        public TicketsController(FlightDbRepository flightDbRepository, TicketDBRepository ticketDBRepository, AirlineDbContext airlineDbContext, UserManager<CustomUser> userManager) 
         {
             _flightDbRepository = flightDbRepository; 
             _ticketDBRepository = ticketDBRepository;
             _airlineDbContext = airlineDbContext;
+            _userManager = userManager;
         }
 
         public IActionResult Index()
@@ -43,21 +48,40 @@ namespace Presentation.Controllers
         }
 
         [HttpGet]
-        public IActionResult Book(Guid Id)
+        public async Task<IActionResult> Book(Guid Id)
         {
+
             var flight = _flightDbRepository.GetFlight(Id);
+
+            if (flight == null)
+            {
+                TempData["error"] = "Flight does not exist!";
+                return RedirectToAction("Index", "Tickets");
+            }
+
             var tickets = _airlineDbContext.Tickets.Where(t => t.FlightIdFK == Id && !t.Cancelled).ToList();
 
             var viewModel = new BookFlightViewModel
             {
-                Row = flight.Rows, 
+                Row = flight.Rows,
                 Column = flight.Columns,
                 PricePaid = flight.WholesalePrice * (flight.WholesalePrice + (decimal)flight.CommissionRate),
-                TakenSeats = tickets.Select(t => (t.Row, t.Column)).ToList()
-
+                TakenSeats = tickets.Select(t => (t.Row, t.Column)).ToList(),
+                
             };
 
+            if (User.Identity.IsAuthenticated)
+            {
+                var user = await _userManager.GetUserAsync(User);
+                if (user != null && user is CustomUser customUser) 
+                {
+                    viewModel.Passport = customUser.Passport;
+                }
+            }
+
+
             return View(viewModel);
+ 
         }
 
         [HttpPost]
@@ -105,7 +129,8 @@ namespace Presentation.Controllers
                         Passport = t.Passport,
                         PricePaid = flight.WholesalePrice * (flight.WholesalePrice + (decimal)flight.CommissionRate),
                         Cancelled = false,
-                        PassportImg = relativePath
+                        PassportImg = relativePath,
+                 
                     }
                 );
                 TempData["message"] = "Ticket boked successfully!";
@@ -122,9 +147,18 @@ namespace Presentation.Controllers
 
         [HttpGet]
         [Authorize]
-        public IActionResult TicketHistory(string passport)
+        public async Task<IActionResult> TicketHistory(CustomUser customUser)
         {
-            var list = _ticketDBRepository.GetTickets().Where(t => t.Passport == passport && !t.Cancelled);
+
+            var currentUser = await _userManager.GetUserAsync(User);
+            if (currentUser == null || !(currentUser is CustomUser castedUser))
+            {
+                TempData["error"] = "User not found or not logged in.";
+                return RedirectToAction("Index", "Home");
+            }
+
+            var passport = castedUser.Passport;
+            var list = _ticketDBRepository.GetTickets().Where(t => t.Passport == passport);
 
             var output = from t in list
                          join f in _airlineDbContext.Flights on t.FlightIdFK equals f.Id
@@ -134,14 +168,15 @@ namespace Presentation.Controllers
                              Row = t.Row,
                              Column = t.Column,
                              Flight = f.CountryFrom + " to " + f.CountryTo,
-                             Passport =t.Passport,
-                             PricePaid = t.PricePaid 
+                             Passport = t.Passport,
+                             PricePaid = t.PricePaid ,
+                             Cancelled = t.Cancelled
                          };
 
             return View(output.ToList());
         }
 
-        public IActionResult Cancle(Guid id)
+        public IActionResult Cancel(Guid id)
         {
             var ticket = (_ticketDBRepository.GetTickets().Where(t=> t.Id == id)).FirstOrDefault();
             if (ticket == null)
