@@ -19,10 +19,10 @@ builder.Services.AddDefaultIdentity<CustomUser>(options => options.SignIn.Requir
 builder.Services.AddControllersWithViews();
 
 string absolutePath = builder.Environment.ContentRootPath + "Data\\tickets.json";
-builder.Services.AddScoped<ITicketRepository, TicketFileRepository>(x => new TicketFileRepository(absolutePath));
+//builder.Services.AddScoped<ITicketRepository, TicketFileRepository>(x => new TicketFileRepository(absolutePath));
 
 builder.Services.AddScoped(typeof(FlightDbRepository));
-//builder.Services.AddScoped(typeof(TicketDBRepository));
+builder.Services.AddScoped<ITicketRepository, TicketDBRepository>();
 
 
 var app = builder.Build();

@@ -47,7 +47,7 @@ namespace Presentation.Controllers
                              ArrivalDate = f.ArrivalDate,
                              CountryFrom = f.CountryFrom,
                              CountryTo = f.CountryTo,
-                             RetailPrice = f.WholesalePrice * (f.WholesalePrice + (decimal)f.CommissionRate), // Calculating the price
+                             RetailPrice = f.WholesalePrice + (f.WholesalePrice * (decimal)f.CommissionRate), // Calculating the price
                              IsFullyBooked = _flightDbRepository.FlightAvailablity(f.Id) //Checking if the flight is fully booked
                          };
 
@@ -72,7 +72,7 @@ namespace Presentation.Controllers
             {
                 Row = flight.Rows,
                 Column = flight.Columns,
-                PricePaid = flight.WholesalePrice * (flight.WholesalePrice + (decimal)flight.CommissionRate),
+                PricePaid = flight.WholesalePrice + (flight.WholesalePrice * (decimal)flight.CommissionRate),
                 TakenSeats = tickets.Select(t => (t.Row, t.Column)).ToList(),
                 
             };
@@ -134,7 +134,7 @@ namespace Presentation.Controllers
                         Column = column,
                         FlightIdFK = flight.Id,
                         Passport = t.Passport,
-                        PricePaid = flight.WholesalePrice * (flight.WholesalePrice + (decimal)flight.CommissionRate),
+                        PricePaid = flight.WholesalePrice + (flight.WholesalePrice * (decimal)flight.CommissionRate),
                         Cancelled = false,
                         PassportImg = relativePath,
                  
