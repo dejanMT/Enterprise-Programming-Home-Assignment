@@ -154,9 +154,8 @@ namespace Presentation.Controllers
 
         [HttpGet]
         [Authorize]
-        public async Task<IActionResult> TicketHistory(CustomUser customUser)
+        public async Task<IActionResult> TicketHistory()
         {
-
             var currentUser = await _userManager.GetUserAsync(User);
             if (currentUser == null || !(currentUser is CustomUser castedUser))
             {
@@ -165,23 +164,23 @@ namespace Presentation.Controllers
             }
 
             var passport = castedUser.Passport;
-            var list = _ticketDBRepository.GetTickets().Where(t => t.Passport == passport);
+            var ticketsList = _ticketDBRepository.GetTickets().Where(t => t.Passport == passport).ToList();
+            var flightsList = _airlineDbContext.Flights.ToList();
 
-            var output = from t in list
-                         join f in _airlineDbContext.Flights on t.FlightIdFK equals f.Id
-                         select new ListTicketsViewModel()
-                         {
-                             Id = t.Id,
-                             Row = t.Row,
-                             Column = t.Column,
-                             Flight = f.CountryFrom + " to " + f.CountryTo,
-                             Passport = t.Passport,
-                             PricePaid = t.PricePaid ,
-                             Cancelled = t.Cancelled
-                         };
+            var output = ticketsList.Select(t => new ListTicketsViewModel
+            {
+                Id = t.Id,
+                Row = t.Row,
+                Column = t.Column,
+                Flight = flightsList.FirstOrDefault(f => f.Id == t.FlightIdFK)?.CountryFrom + " to " + flightsList.FirstOrDefault(f => f.Id == t.FlightIdFK)?.CountryTo,
+                Passport = t.Passport,
+                PricePaid = t.PricePaid,
+                Cancelled = t.Cancelled
+            }).ToList();
 
-            return View(output.ToList());
+            return View(output);
         }
+
 
         public IActionResult Cancel(Guid id)
         {

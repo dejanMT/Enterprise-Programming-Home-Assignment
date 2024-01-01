@@ -16,6 +16,7 @@ namespace Presentation.Models.ViewModels
 
         [Required(ErrorMessage = "Passport is empty")]
         public string Passport { get; set; }
+        [Display(Name = "Price")]
         public decimal PricePaid { get; set; }
 
         public IFormFile PassportImgFile { get; set; }

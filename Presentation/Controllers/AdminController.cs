@@ -1,5 +1,6 @@
 ﻿using Data.DataContext;
 using Data.Repositories;
+using Domain.Interfaces;
 using Domain.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -13,10 +14,10 @@ namespace Presentation.Controllers
     {
 
         private FlightDbRepository _flightDbRepository;
-        private TicketDBRepository _ticketDBRepository;
+        private ITicketRepository _ticketDBRepository;
         private AirlineDbContext _airlineDbContext;
 
-        public AdminController(FlightDbRepository flightDbRepository, TicketDBRepository ticketDBRepository, AirlineDbContext airlineDbContext)
+        public AdminController(FlightDbRepository flightDbRepository, ITicketRepository ticketDBRepository, AirlineDbContext airlineDbContext)
         {
             _flightDbRepository = flightDbRepository;
             _ticketDBRepository = ticketDBRepository;
@@ -49,34 +50,44 @@ namespace Presentation.Controllers
         }
 
         [HttpGet]
-        public IActionResult FlightTicket (Guid Id)
+        public IActionResult FlightTicket(Guid Id)
         {
-            var list = _ticketDBRepository.GetTickets().Where(t => t.FlightIdFK == Id);
-            if (list == null)
-            {
-                TempData["error"] = "No Tickets where booked for this flight!";
-                return View();
-            } else
-            {
-                var output = from t in list
-                             join f in _airlineDbContext.Flights on t.FlightIdFK equals f.Id
-                             select new ListTicketsViewModel()
-                             {
-                                 Id = t.Id,
-                                 Passport = t.Passport,
-                                 Row = t.Row,
-                                 Column = t.Column,
-                                 Cancelled = t.Cancelled
-                             };
+            var tickets = _ticketDBRepository.GetTickets().Where(t => t.FlightIdFK == Id).ToList();
 
-                return View(output.ToList());
+            if (!tickets.Any())
+            {
+                TempData["error"] = "No Tickets were booked for this flight!";
+                return View();
             }
-           
+            else
+            {
+                var flight = _airlineDbContext.Flights.FirstOrDefault(f => f.Id == Id);
+
+                if (flight == null)
+                {
+                    TempData["error"] = "Flight not found!";
+                    return View();
+                }
+
+                var viewModel = tickets.Select(t => new ListTicketsViewModel
+                {
+                    Id = t.Id,
+                    Passport = t.Passport,
+                    Row = t.Row,
+                    Column = t.Column,
+                    Cancelled = t.Cancelled,
+                    Flight = flight.CountryFrom + " to " + flight.CountryTo
+                }).ToList();
+
+                return View(viewModel);
+            }
         }
+
 
         public IActionResult TicketDetails(Guid id)
         {
-            var ticket = _ticketDBRepository.GetTickets().Where(t => t.Id == id);
+            var ticketList = _ticketDBRepository.GetTickets().ToList();
+            var ticket = ticketList.FirstOrDefault(t => t.Id == id);
 
             if (ticket == null)
             {
@@ -84,20 +95,24 @@ namespace Presentation.Controllers
                 return View();
             }
 
-                var output = (from t in ticket
-                         join f in _airlineDbContext.Flights on t.FlightIdFK equals f.Id
-                         select new ListTicketsViewModel()
-                         {
-                             Id = t.Id,
-                             Passport = t.Passport,
-                             Flight = f.CountryFrom + " to " + f.CountryTo,
-                             Row = t.Row,
-                             Column = t.Column,
-                             PricePaid = t.PricePaid,
-                             PassportImg = t.PassportImg,
-                             Cancelled = t.Cancelled
+            var flight = _airlineDbContext.Flights.FirstOrDefault(f => f.Id == ticket.FlightIdFK);
+            if (flight == null)
+            {
+                TempData["error"] = "Flight for this ticket not found!";
+                return View();
+            }
 
-                         }).FirstOrDefault();
+            var output = new ListTicketsViewModel
+            {
+                Id = ticket.Id,
+                Passport = ticket.Passport,
+                Flight = flight.CountryFrom + " to " + flight.CountryTo,
+                Row = ticket.Row,
+                Column = ticket.Column,
+                PricePaid = ticket.PricePaid,
+                PassportImg = ticket.PassportImg,
+                Cancelled = ticket.Cancelled
+            };
 
             return View(output);
         }
