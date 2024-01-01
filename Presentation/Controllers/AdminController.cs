@@ -29,6 +29,13 @@ namespace Presentation.Controllers
             var currentDate = DateTime.Now;
             IQueryable<Flight> list = _flightDbRepository.GetFlights();
 
+
+            if (!list.Any())
+            {
+                TempData["error"] = "No Tickets found!";
+                return View();
+            }
+
             var output = from f in list
                          where f.DepartureDate > currentDate
                          select new AdminListFlightsViewModel()
@@ -54,7 +61,7 @@ namespace Presentation.Controllers
         {
             var tickets = _ticketDBRepository.GetTickets().Where(t => t.FlightIdFK == Id).ToList();
 
-            if (!tickets.Any())
+            if (tickets == null)
             {
                 TempData["error"] = "No Tickets were booked for this flight!";
                 return View();

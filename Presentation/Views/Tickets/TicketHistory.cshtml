@@ -54,7 +54,7 @@
                 @(item.Cancelled ? "Yes" : "No")
             </td>
             <td>
-                    @if (item.Cancelled)
+                    @if (!item.Cancelled)
                     {
                         <a href="\Tickets\Cancel?id=@item.Id" onclick='return window.confirm("Are you sure you want to cancel?")'>Cancel</a>
 
