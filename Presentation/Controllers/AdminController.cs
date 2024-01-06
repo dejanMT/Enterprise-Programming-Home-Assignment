@@ -49,7 +49,7 @@ namespace Presentation.Controllers
                              CountryTo = f.CountryTo,
                              WholesalePrice = f.WholesalePrice,
                              CommissionRate = f.CommissionRate,
-                             RetailPrice = f.WholesalePrice * (1 + (decimal)f.CommissionRate / 100), // Calculating the price
+                             RetailPrice = f.WholesalePrice + (f.WholesalePrice * (decimal)f.CommissionRate), // Calculating the price
                              IsFullyBooked = _flightDbRepository.FlightAvailablity(f.Id) //Checking if the flight is fully booked
                          };
 
